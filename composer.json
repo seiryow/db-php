@@ -10,7 +10,7 @@
         "name": "seiryow",
         "email": "fbzy00@gmail.com"
       }
-    ]
+    ],
   "autoload": {
     "psr-0": {
       "": "."
