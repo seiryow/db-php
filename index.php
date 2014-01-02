@@ -1,11 +1,5 @@
-db-php
-======
-
-PDO wrapper
-
-### `index.php`
-
-```php
+<?php
+include ("DB.php");
 
 //CONNECT DB
 //SQLITE
@@ -90,4 +84,8 @@ $where["testtxt"] = array (
 $r = $test->select($where);
 //dump($r);
 
-```
+//todo
+//COUNT
+//DESC / PRAGMA
+//DELETE
+?>
