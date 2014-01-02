@@ -4,8 +4,6 @@
 
 //require 'vendor/DB.php';
 
-$hello = new \DB\DB();
-
 //CONNECT DB
 //SQLITE
 $dbtype = "sqlite";
