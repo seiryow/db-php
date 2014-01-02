@@ -1,5 +1,5 @@
 <?php
-//namespace DB;
+namespace DB;
 
 class DB {
 	function __construct($dbtype, $dbname, $table, $user, $pass) {

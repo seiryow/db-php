@@ -1,5 +1,10 @@
 <?php
-include ("DB.php");
+//include ("DB.php");
+
+
+//require 'vendor/DB.php';
+
+$hello = new \DB\DB();
 
 //CONNECT DB
 //SQLITE
