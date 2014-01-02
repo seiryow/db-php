@@ -1,8 +1,5 @@
 <?php
-//include ("DB.php");
-
-
-//require 'vendor/DB.php';
+include ("DB.php");
 
 //CONNECT DB
 //SQLITE

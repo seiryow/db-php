@@ -55,6 +55,9 @@ class DB {
 	public function update($arr, $warr) {
 		return update_Data($this->db, $this->table, $this->retrieve($arr), $warr);
 	}
+	public function dump($arr) {
+		return dump($arr);
+	}
 
 	public function retrieve($arr) {
 		$i = 0;
