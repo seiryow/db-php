@@ -1,8 +1,3 @@
 {
-  "name": "seiryow/db-php",
-  "autoload": {
-    "psr-0": {
-      "DB": "."
-    }
-  }
+  "name": "seiryow/db-php"
 }
