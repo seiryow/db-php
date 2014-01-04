@@ -1,11 +1,12 @@
 <?php
-
 class DB {
 	function __construct($dbtype, $dbname, $table, $user, $pass) {
 		//		$con = new PDO("{$dbname}", $user, $pass);
 		$this->type = $dbtype;
 		$this->table = $table;
 		$this->db = new PDO("{$dbtype}:{$dbname}", $user, $pass);
+		$this->debugquery = false;
+		$this->defaultschema = false;
 	}
 
 	function connect($dbname, $user, $pass) {
@@ -15,8 +16,12 @@ class DB {
 		return $con;
 	}
 	public function query($query) {
+		if ($this->debugquery) {
+			echo $query;
+			echo "<br />\n";
+		}
 
-		return $this->db->query($query);
+		//		return $this->db->query($query);
 		$sth = $this->db->prepare($query);
 		if ($sth->execute()) {
 			return $sth->fetchAll();
@@ -27,15 +32,17 @@ class DB {
 	public function select() {
 		$arg_num = func_num_args();
 		$arg_list = func_get_args();
+		$warr = array ();
 		$op = "";
-		if (0 < $arg_num) {
+		if (1 <= $arg_num) {
 			$warr = $arg_list[0];
 		}
-		if (1 < $arg_num) {
+		if (2 <= $arg_num) {
 			$op = $arg_list[1];
 		}
-		return select_Data($this->db, $this->table, $warr, $op);
+		return $this->select_Data($this->db, $this->table, $warr, $op);
 	}
+
 	public function selectAll() {
 		$arg_num = func_num_args();
 		$arg_list = func_get_args();
@@ -44,7 +51,7 @@ class DB {
 		if (0 < $arg_num) {
 			$op = $arg_list[0];
 		}
-		return select_Data($this->db, $this->table, array (), $op);
+		return $this->select(array (), $op);
 	}
 	public function create($arr) {
 		return create_table($this->db, $this->table, $this->type, $arr);
@@ -72,6 +79,111 @@ class DB {
 		}
 		return $narr;
 	}
+
+	function create_table($con, $table, $dbtype, $arr) {
+		$qa = array ();
+
+		if ($dbtype == "sqlite") {
+			array_push($qa, "id INTEGER PRIMARY KEY AUTOINCREMENT");
+		} else {
+			array_push($qa, "id INTEGER PRIMARY KEY AUTO_INCREMENT ");
+		}
+		foreach ($arr as $key => $value) {
+			array_push($qa, "{$key} {$value}");
+		}
+		if ($dbtype == "sqlite") {
+			array_push($qa, "timestamp VARCHAR(19) DEFAULT (datetime())");
+		} else {
+			array_push($qa, "timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP");
+		}
+		$q = implode(",", $qa);
+
+		$query = "DROP  TABLE {$table}";
+		$result = $con->query($query);
+
+		$query = "CREATE TABLE {$table}({$q}) ";
+
+		//			echo $query;
+		$result = $con->query($query);
+
+		return $result;
+	}
+
+	function select_Data() {
+		$arg_num = func_num_args();
+		$arg_list = func_get_args();
+		$con = $arg_list[0];
+		$table = $arg_list[1];
+
+		$arr = array ();
+
+		$op = "";
+		if (2 < $arg_num) {
+
+			$arr = $arg_list[2];
+
+			if (3 < $arg_num) {
+				$op = $arg_list[3];
+			}
+		}
+
+		$query = "select * from {$table} ";
+
+		$q = " 1=1 ";
+
+		//	foreach ($arr as $key => $value) {
+		//		$q .= " OR {$key} LIKE '{$value}' ";
+		//	}
+		foreach ($arr as $key => $value) {
+			if (is_array($value)) {
+				//			echo 23456;
+				$q2 = " 1=0 ";
+				foreach ($value as $key2 => $value2) {
+					if ($key2 === "like") {
+						//					echo $key2;
+						//					echo "like";
+						$q2 .= " OR {$key} LIKE '%{$value2}%' ";
+						//					echo $q2;
+					} else
+						if ($key2 === "between") {
+							//					echo $key2;
+							//					echo "like";
+							$q2 .= " OR {$key} BETWEEN {$value2} ";
+							//					echo $q2;
+						} else {
+							if ($value2 == "") {
+								$q2 .= " OR {$key} IS NULL ";
+							} else {
+								$q2 .= " OR {$key} = '{$value2}' ";
+							}
+						}
+
+				}
+				//			echo $q2;
+				$q .= " AND ( $q2 ) ";
+			}
+			elseif (is_numeric($key)) {
+				$q .= " AND {$value} ";
+			} else {
+				if ($value == "") {
+					$q .= " AND {$key} IS NULL ";
+				} else {
+					$q .= " AND {$key} = '{$value}' ";
+				}
+			}
+		}
+		$query = "select * from {$table} WHERE  {$q} {$op} ";
+		//					echo $query;
+		//		$row = array ();
+		return $this->query($query);
+		//		$sth = $con->prepare($query);
+		//		if ($sth->execute()) {
+		//			return $sth->fetchAll();
+		//		} else {
+		//			return false;
+		//		}
+	}
+
 }
 
 function show_table_info($con, $table) {
@@ -517,4 +629,12 @@ function join_Select_Data() {
 		return false;
 	}
 }
+
+/*
+ * db-php v0.0.1
+ *
+ * Copyright 2014, Seiryo Watanabe  All rights reserved.
+ * Date: Wed Jan 1 00:00:00 2014 -0400
+ *
+ */
 ?>

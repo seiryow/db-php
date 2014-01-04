@@ -17,6 +17,8 @@ $test = new DB($dbtype, $dbname, $table, null, null);
 //$pass = "";
 //$test = new DB($dbtype, "host={$host};dbname={$dbname}", $table, $user, $pass);
 
+$test->debugquery = true;
+
 //CREATE TABLE
 $schema = array ();
 $schema["testint"] = "INTEGER";
@@ -38,7 +40,7 @@ $data["testtxt"] = "def";
 $test->insert($data);
 
 //SELECT ALL
-$r = $test->selectAll();
+$r = $test->select();
 //dump($r);
 
 //SELECT
@@ -47,19 +49,19 @@ $where["testint"] = 456;
 $r = $test->select($where);
 //dump($r);
 
+//RAW QUERY (same result as above)
+$r = $test->query("select * from test WHERE testint = '456' ");
+//dump($r);
+
 //UPDATE
 $where = array ();
 $update = array ();
 $where["testint"] = 789;
 $update["testtxt"] = "ghi";
 $test->update($update, $where);
-
-$r = $test->select($where);
+$r = $test->select();
 //dump($r);
 
-$test->insert($data);
-$r = $test->selectAll();
-//dump($r);
 //SELECT by LIKE
 $where = array ();
 $where["testtxt"] = array (
@@ -71,7 +73,7 @@ $r = $test->select($where);
 //SELECT with AND
 $where = array ();
 $where["testint"] = 456;
-$update["testtxt"] = "xyz";
+$where["testtxt"] = "xyz";
 $r = $test->select($where);
 //dump($r);
 
